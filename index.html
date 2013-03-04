@@ -1,0 +1,107 @@
+<html>
+  <head>
+		<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+		    <style type="text/css">
+		      html { height: 100% }
+		      body { height: 100%; margin: 0; padding: 0 }
+		      #map_canvas { height: 100% }
+		    </style>
+		    <script type="text/javascript"
+		      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC9MBAPiSlT8jZmx1Iu_GS18XcB6bHsXlw&sensor=true">
+		    </script>
+		    <script type="text/javascript">
+		      /**
+			 * A radius widget that add a circle to a map and centers on a marker.
+			 *
+			 * @constructor
+			 */
+			function RadiusWidget() {
+			  var circle = new google.maps.Circle({
+			    strokeWeight: 2,
+			    strokeColor: "#00FFFF",
+			    fillOpacity: .25,
+			    fillColor: "#00FFFF"
+			  });
+
+			  // Set the distance property value, default to 1 mi (1.60934 km).
+			  this.set('distance', 1.60934);
+
+			  // Bind the RadiusWidget bounds property to the circle bounds property.
+			  this.bindTo('bounds', circle);
+
+			  // Bind the circle center to the RadiusWidget center property
+			  circle.bindTo('center', this);
+
+			  // Bind the circle map to the RadiusWidget map
+			  circle.bindTo('map', this);
+
+			  // Bind the circle radius property to the RadiusWidget radius property
+			  circle.bindTo('radius', this);
+			}
+			RadiusWidget.prototype = new google.maps.MVCObject();
+
+
+			/**
+			 * Update the radius when the distance has changed.
+			 */
+			RadiusWidget.prototype.distance_changed = function() {
+			  this.set('radius', this.get('distance') * 1000);
+			};
+
+
+		      /**
+			 * A distance widget that will display a circle that can be resized and will
+			 * provide the radius in km.
+			 * @param {google.maps.Map} map The map on which to attach the distance widget.
+			 *
+			 * @constructor
+			 */
+			function DistanceWidget(map) {
+			  this.set('map', map);
+			  this.set('position', map.getCenter());
+
+			  var marker = new google.maps.Marker({
+			    draggable: true,
+			    title: 'Move me!'
+			  });
+
+			  // Bind the marker map property to the DistanceWidget map property
+			  marker.bindTo('map', this);
+
+			  // Bind the marker position property to the DistanceWidget position
+			  // property
+			  marker.bindTo('position', this);
+			  // Create a new radius widget
+				var radiusWidget = new RadiusWidget();
+
+				// Bind the radiusWidget map to the DistanceWidget map
+				radiusWidget.bindTo('map', this);
+
+				// Bind the radiusWidget center to the DistanceWidget position
+				radiusWidget.bindTo('center', this, 'position');
+
+			}
+			DistanceWidget.prototype = new google.maps.MVCObject();
+
+		      function initialize() {
+		        var mapOptions = {
+		          center: new google.maps.LatLng(44.562854, -123.278977),
+		          zoom: 14,
+		          mapTypeId: google.maps.MapTypeId.ROADMAP
+		        };
+		        var map = new google.maps.Map(document.getElementById("map_canvas"),
+		            mapOptions);
+		        
+		        var distanceWidget = new DistanceWidget(map);
+		      }
+		    </script>
+	</head>
+
+	<body onload="initialize()">
+		<h2>Geolocated Craigslist Rental finder</h2>
+		<h3>Finds 5+ bedroom houses within 1 mile of OSU</h3>
+		<br />
+		<div id="map_canvas" style="width:100%; height:100%"></div>
+
+	</body>
+</html>
